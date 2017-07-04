@@ -1,0 +1,101 @@
+{
+  "name": "clearcasescm",
+  "displayName": "ClearCaseSCM",
+  "description": "\"ClearCase SCM provider for VSCode\"",
+  "version": "0.0.1",
+  "publisher": "jsinger",
+  "engines": {
+    "vscode": "^1.12.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/src/main",
+  "contributes": {
+    "commands": [
+      {
+        "command": "clearcase.lsvtree",
+        "title": "%command.lsvtree%",
+        "category": "ClearCaseScm"
+      },
+      {
+        "command": "clearcase.checkin",
+        "title": "%command.checkin%",
+        "category": "ClearCaseScm"
+      },
+      {
+        "command": "clearcase.checkout",
+        "title": "%command.checkout%",
+        "category": "ClearCaseScm"
+      },
+      {
+        "command": "clearcase.undocheckout",
+        "title": "%command.undocheckout%",
+        "category": "ClearCaseScm"
+      },
+      {
+        "command": "clearcase.mkelem",
+        "title": "%command.addToSourceControl%",
+        "category": "ClearCaseScm"
+      }
+    ],
+    "menus": {
+      "scm/resourceState/context": [
+        {
+          "command": "clearcase.lsvtree",
+          "when": "config.clearcase.enabled && scmProvider == clearcase && scmResourceGroup == elems"
+        },
+        {
+          "command": "clearcase.checkout",
+          "when": "config.clearcase.enabled && scmProvider == clearcase && scmResourceGroup == elems"
+        },
+        {
+          "command": "clearcase.lsvtree",
+          "when": "config.clearcase.enabled && scmProvider == clearcase && scmResourceGroup == checkedouts"
+        },
+        {
+          "command": "clearcase.checkin",
+          "when": "config.clearcase.enabled && scmProvider == clearcase && scmResourceGroup == checkedouts"
+        },
+        {
+          "command": "clearcase.undocheckout",
+          "when": "config.clearcase.enabled && scmProvider == clearcase && scmResourceGroup == checkedouts"
+        },
+        {
+          "command": "clearcase.mkelem",
+          "when": "config.clearcase.enabled && scmProvider == clearcase && scmResourceGroup == viewprivates"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "ClearCase SCM",
+      "properties": {
+        "clearcase.enabled": {
+          "type": "boolean",
+          "description": "%config.enabled%",
+          "default": true
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "dependencies": {
+    "vscode-nls": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.32",
+    "@types/node": "^6.0.40",
+    "mocha": "^2.3.3",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "vscode-nls-dev": "^2.1.2"
+  }
+}
