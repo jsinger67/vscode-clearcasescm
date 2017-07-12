@@ -152,8 +152,9 @@ export class ClearCaseSCMProvider {
 
   private async updateViewPrivatesGroup(): Promise<void> {
     this.viewPrivatesResourceStates = [];
+    let thisArg: ClearCaseSCMProvider = this;
     let absPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
-      return { resourceUri: createResourceUri(path.relative(this.workspaceRootPath, e)) };
+      return { resourceUri: createResourceUri(e) };
     };
     await this._clearCase.listViewPrivates((data) => {
       data.
