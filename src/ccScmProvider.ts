@@ -122,40 +122,46 @@ export class ClearCaseSCMProvider {
   }
 
   private async updateCheckedOutsGroup(): Promise<void> {
-    let resourceStates : SourceControlResourceState[] = [];
+    this.checkedOutsResourceStates = [];
     let absPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
       return { resourceUri: createResourceUri(path.relative(this.workspaceRootPath, e)) };
     };
-    let lines: string[] = await this._clearCase.listCheckedOuts();
-    lines.
-    map(absPathToResourceState).
-    forEach(state => resourceStates.push(state));
-    this.checkedOutsGroup.resourceStates = this.checkedOutsResourceStates = resourceStates;
+    await this._clearCase.listCheckedOuts((data) => {
+      data.
+      map(absPathToResourceState).
+      forEach(state => this.checkedOutsResourceStates.push(state));
+      this.checkedOutsGroup.resourceStates = this.checkedOutsResourceStates;
+    });
+    await this.updateCountOnBadge();
   }
 
   private async updateElementsGroup(): Promise<void> {
-    let resourceStates : SourceControlResourceState[] = [];
+    this.elementsResourceStates = [];
     let extendedPathToCCResourceState:(e: string) => SourceControlResourceState = (e: string) => {
       let a: string[] = e.split(/@@/);
       return new CCElementSourceControlResourceState(Uri.file(a[0]), a[1]);
     };
-    let lines: string[] = await this._clearCase.listElements();
-    lines.
-    map(extendedPathToCCResourceState).
-    forEach(state => resourceStates.push(state));
-    this.elementsGroup.resourceStates = this.elementsResourceStates = resourceStates;
+    await this._clearCase.listElements((data) => {
+      data.
+      map(extendedPathToCCResourceState).
+      forEach(state => this.elementsResourceStates.push(state));
+      this.elementsGroup.resourceStates = this.elementsResourceStates;
+    });
+    await this.updateCountOnBadge();
   }
 
   private async updateViewPrivatesGroup(): Promise<void> {
-    let resourceStates : SourceControlResourceState[] = [];
+    this.viewPrivatesResourceStates = [];
     let absPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
       return { resourceUri: createResourceUri(path.relative(this.workspaceRootPath, e)) };
     };
-    let lines: string[] = await this._clearCase.listViewPrivates();
-    lines.
-    map(absPathToResourceState).
-    forEach(state => resourceStates.push(state));
-    this.viewPrivatesGroup.resourceStates = this.viewPrivatesResourceStates = resourceStates;
+    await this._clearCase.listViewPrivates((data) => {
+      data.
+      map(absPathToResourceState).
+      forEach(state => this.viewPrivatesResourceStates.push(state));
+      this.viewPrivatesGroup.resourceStates = this.viewPrivatesResourceStates;
+    });
+    await this.updateCountOnBadge();
   }
 
   private async updateCountOnBadge(): Promise<void> {
@@ -166,7 +172,6 @@ export class ClearCaseSCMProvider {
     await this.updateCheckedOutsGroup();
     await this.updateElementsGroup();
     await this.updateViewPrivatesGroup();
-    await this.updateCountOnBadge();
   }
 
   private onFsChanged(uri: Uri): void {
