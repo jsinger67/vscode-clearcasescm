@@ -153,7 +153,7 @@ export class ClearCase {
   }
 
   public async showVersionTree(filePath: string): Promise<void> {
-    return await this.startCleartoolCommand(this.LS_VTREE + filePath);
+    return await this.startCleartoolCommand(this.LS_VTREE + ' ' + filePath);
   }
 
   public async checkIn(filePath: string, comment: string): Promise<void> {
@@ -164,15 +164,15 @@ export class ClearCase {
       params = '-nc ' + params;
     }
 
-    return await this.startCleartoolCommand(this.CI + params);
+    return await this.startCleartoolCommand(this.CI + ' ' + params);
   }
 
   public async checkOut(filePath: string): Promise<void> {
-    return await this.startCleartoolCommand(this.CO + filePath);
+    return await this.startCleartoolCommand(this.CO + ' ' + filePath);
   }
 
   public async undoCheckOut(filePath: string): Promise<void> {
-    return await this.startCleartoolCommand(this.UN_CO + filePath);
+    return await this.startCleartoolCommand(this.UN_CO + ' ' + filePath);
   }
 
   public async isCheckedOut(filePath: string): Promise<boolean> {

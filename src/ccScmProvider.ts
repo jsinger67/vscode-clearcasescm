@@ -123,12 +123,12 @@ export class ClearCaseSCMProvider {
 
   private async updateCheckedOutsGroup(): Promise<void> {
     this.checkedOutsResourceStates = [];
-    let absPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
-      return { resourceUri: createResourceUri(path.relative(this.workspaceRootPath, e)) };
+    let relPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
+      return { resourceUri: createResourceUri(e) };
     };
     await this._clearCase.listCheckedOuts((data) => {
       data.
-      map(absPathToResourceState).
+      map(relPathToResourceState).
       forEach(state => this.checkedOutsResourceStates.push(state));
       this.checkedOutsGroup.resourceStates = this.checkedOutsResourceStates;
     });
@@ -139,7 +139,7 @@ export class ClearCaseSCMProvider {
     this.elementsResourceStates = [];
     let extendedPathToCCResourceState:(e: string) => SourceControlResourceState = (e: string) => {
       let a: string[] = e.split(/@@/);
-      return new CCElementSourceControlResourceState(Uri.file(a[0]), a[1]);
+      return new CCElementSourceControlResourceState(Uri.file(path.join(this.workspaceRootPath, a[0])), a[1]);
     };
     await this._clearCase.listElements((data) => {
       data.
@@ -153,12 +153,12 @@ export class ClearCaseSCMProvider {
   private async updateViewPrivatesGroup(): Promise<void> {
     this.viewPrivatesResourceStates = [];
     let thisArg: ClearCaseSCMProvider = this;
-    let absPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
-      return { resourceUri: createResourceUri(e) };
+    let relPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
+      return { resourceUri: createResourceUri(path.join(this.workspaceRootPath, e)) };
     };
     await this._clearCase.listViewPrivates((data) => {
       data.
-      map(absPathToResourceState).
+      map(relPathToResourceState).
       forEach(state => this.viewPrivatesResourceStates.push(state));
       this.viewPrivatesGroup.resourceStates = this.viewPrivatesResourceStates;
     });
