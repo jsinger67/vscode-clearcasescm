@@ -21,7 +21,7 @@ export class ClearCase {
   private readonly MKELEM : string = 'mkelem -nco';
   private readonly DESCR : string = 'describe -short';
   private readonly LS_ELEMS : string = 'ls -vob -r -s';
-  private readonly LS_CO : string = 'lsco -s -r';
+  private readonly LS_CO : string = 'lsco -cview -s -r';
   private readonly LS_VIEW : string = 'lsview -cview -long';
   private readonly LS_VTREE : string = 'lsvtree -g';
   private readonly LS_PRIV_DYN : string = 'lspriv';
