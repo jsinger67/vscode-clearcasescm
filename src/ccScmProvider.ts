@@ -60,10 +60,10 @@ export class ClearCaseSCMProvider {
   get label(): string { return 'ClearCase'; }
 
   get count(): number {
-    if (!this.checkedOutsResourceStates) {
+    if (!this.checkedOutsGroup.resourceStates) {
       return 0;
     }
-    return this.checkedOutsResourceStates.length;
+    return this.checkedOutsGroup.resourceStates.length;
   }
 
   private _sourceControl: SourceControl;
@@ -73,11 +73,6 @@ export class ClearCaseSCMProvider {
   }
 
   private checkedOutsGroup: SourceControlResourceGroup;
-  private checkedOutsResourceStates : SourceControlResourceState[];
-  // private elementsGroup: SourceControlResourceGroup;
-  // private elementsResourceStates : SourceControlResourceState[];
-  // private viewPrivatesGroup: SourceControlResourceGroup;
-  // private viewPrivatesResourceStates : SourceControlResourceState[];
 
   private _clearCase : ClearCase;
   private _model : Model;
@@ -102,19 +97,8 @@ export class ClearCaseSCMProvider {
     this.disposables.push(this._model);
 
     this.checkedOutsGroup = this._sourceControl.createResourceGroup('checkedouts', 'Checked Out Elements');
-    this.checkedOutsResourceStates = [];
-    // this.elementsGroup = this._sourceControl.createResourceGroup('elems', 'Elements');
-    // this.elementsResourceStates = [];
-    // this.viewPrivatesGroup = this._sourceControl.createResourceGroup('viewprivates', 'View Private Files');
-    // this.viewPrivatesResourceStates = [];
-
-    // this.elementsGroup.hideWhenEmpty = true;
     this.checkedOutsGroup.hideWhenEmpty = true;
-    // this.viewPrivatesGroup.hideWhenEmpty = true;
-
     this.disposables.push(this.checkedOutsGroup);
-    // this.disposables.push(this.elementsGroup);
-    // this.disposables.push(this.viewPrivatesGroup);
 
     this._clearCase = new ClearCase(outputChannel, workspaceRootPath);
 
@@ -122,48 +106,23 @@ export class ClearCaseSCMProvider {
   }
 
   private async updateCheckedOutsGroup(): Promise<void> {
-    this.checkedOutsResourceStates = [];
+    let thisArg: ClearCaseSCMProvider = this;
+    let checkedOutsResourceStates : SourceControlResourceState[] = [];
     let relPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
       return { resourceUri: createResourceUri(e) };
     };
     await this._clearCase.listCheckedOuts((data) => {
       data.
       map(relPathToResourceState).
-      forEach(state => this.checkedOutsResourceStates.push(state));
-      this.checkedOutsGroup.resourceStates = this.checkedOutsResourceStates;
+      forEach(state => {
+        if (checkedOutsResourceStates.find((s) => s === state) === undefined) {
+          checkedOutsResourceStates.push(state);
+        }
+      });
     });
+    thisArg.checkedOutsGroup.resourceStates = checkedOutsResourceStates;
     await this.updateCountOnBadge();
   }
-
-  // private async updateElementsGroup(): Promise<void> {
-  //   this.elementsResourceStates = [];
-  //   let extendedPathToCCResourceState:(e: string) => SourceControlResourceState = (e: string) => {
-  //     let a: string[] = e.split(/@@/);
-  //     return new CCElementSourceControlResourceState(Uri.file(path.join(this.workspaceRootPath, a[0])), a[1]);
-  //   };
-  //   await this._clearCase.listElements((data) => {
-  //     data.
-  //     map(extendedPathToCCResourceState).
-  //     forEach(state => this.elementsResourceStates.push(state));
-  //     this.elementsGroup.resourceStates = this.elementsResourceStates;
-  //   });
-  //   await this.updateCountOnBadge();
-  // }
-
-  // private async updateViewPrivatesGroup(): Promise<void> {
-  //   this.viewPrivatesResourceStates = [];
-  //   let thisArg: ClearCaseSCMProvider = this;
-  //   let relPathToResourceState:(e: string) => SourceControlResourceState = (e: string) => {
-  //     return { resourceUri: createResourceUri(path.join(this.workspaceRootPath, e)) };
-  //   };
-  //   await this._clearCase.listViewPrivates((data) => {
-  //     data.
-  //     map(relPathToResourceState).
-  //     forEach(state => this.viewPrivatesResourceStates.push(state));
-  //     this.viewPrivatesGroup.resourceStates = this.viewPrivatesResourceStates;
-  //   });
-  //   await this.updateCountOnBadge();
-  // }
 
   private async updateCountOnBadge(): Promise<void> {
     this._sourceControl.count = this.count;
@@ -171,8 +130,6 @@ export class ClearCaseSCMProvider {
 
   private async updateResourceGroups(): Promise<void> {
     await this.updateCheckedOutsGroup();
-    // await this.updateElementsGroup();
-    // await this.updateViewPrivatesGroup();
   }
 
   private onFsChanged(uri: Uri): void {
