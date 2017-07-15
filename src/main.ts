@@ -24,7 +24,7 @@ async function init(context: ExtensionContext, disposables: Disposable[]): Promi
     disposables.push(outputChannel);
 
     if (enabled) {
-        const info: string = await getClearCaseInfo();
+        const info: string = await getClearCaseInfo(outputChannel);
         outputChannel.appendLine(info);
         outputChannel.show(true);
     }
@@ -49,15 +49,18 @@ export function deactivate(): void {
     return;
 }
 
-async function getClearCaseInfo(): Promise<string> {
+async function getClearCaseInfo(outputChannel: OutputChannel): Promise<string> {
     return new Promise<string>(
         // tslint:disable-next-line:typedef
         function(resolve, reject): void {
-        cp.exec('cleartool -verAll', (err : Error, output : string) => {
-            if (err) {
-                reject(localize('no ClearCase', 'ClearCase not found!'));
-            }
-            resolve(output);
+            cp.exec('cleartool -verAll', (err : Error, output : string) => {
+                if (err) {
+                    let msg = localize('no ClearCase', 'ClearCase not found!');
+                    outputChannel.appendLine(msg);
+                    outputChannel.show(true);
+                    reject(msg);
+                }
+                resolve(output);
+            });
         });
-    });
 }
