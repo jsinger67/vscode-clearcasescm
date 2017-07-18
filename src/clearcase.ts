@@ -157,9 +157,9 @@ export class ClearCase {
     }
 
     public async checkIn(filePath: string, comment: string): Promise<void> {
-        let params = filePath;
+        let params = this.doubleQuote(filePath);
         if (comment.length > 0) {
-            params = ' -c ' + comment;
+            params = ' -c ' + this.doubleQuote(comment) + ' ' + params;
         } else {
             params = '-nc ' + params;
         }
@@ -168,11 +168,11 @@ export class ClearCase {
     }
 
     public async checkOut(filePath: string): Promise<void> {
-        return await this.startCleartoolCommand(this.CO + ' ' + filePath);
+        return await this.startCleartoolCommand(this.CO + ' ' + this.doubleQuote(filePath));
     }
 
     public async undoCheckOut(filePath: string): Promise<void> {
-        return await this.startCleartoolCommand(this.UN_CO + ' ' + filePath);
+        return await this.startCleartoolCommand(this.UN_CO + ' ' + this.doubleQuote(filePath));
     }
 
     public async isCheckedOut(filePath: string): Promise<boolean> {
